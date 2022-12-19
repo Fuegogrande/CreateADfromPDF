@@ -4,7 +4,7 @@ from datetime import date
 import pyad
 
 #Extract PDF Data and save to Variables
-"""initials = input('What are your initials?')
+initials = input('What are your initials?')
 today = date.today()
 inputMode = input('Employee or Contractor (E or C)? ')
 fileName = input('What is the filename? \n')
@@ -96,4 +96,4 @@ elif inputMode.upper() == 'E':
     }
 
 for location in ADValues:
-    print(ADValues[location])"""
+    print(ADValues[location])
