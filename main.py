@@ -1,10 +1,23 @@
 import fitz
 import re
 from datetime import date
-import pyad
+from pyad import *
+import sys
 
-#Extract PDF Data and save to Variables
-initials = input('What are your initials?')
+
+# Extract PDF Data and save to Variables
+loginName = input('What is your name, first and last? \n')
+splitName = loginName.split()
+loginFirst = splitName[0]
+loginLast = splitName[1]
+initials = loginFirst[0] + loginLast[0]
+loginUsername = input('What is your login name (do not include -la)? ')
+defaultUsername = loginUsername + '-la'
+loginUsername2 = loginName + ' - la'
+print(loginUsername2)
+loginPassword = input('Password: ')
+
+
 today = date.today()
 inputMode = input('Employee or Contractor (E or C)? ')
 fileName = input('What is the filename? \n')
@@ -12,7 +25,7 @@ doc = fitz.open(fileName + '.pdf')
 text = ""
 line = 1
 for page in doc:
-    text+=page.get_text()
+    text += page.get_text()
 oneline = text.split('\n')
 
 if inputMode.upper() == 'C':
@@ -21,7 +34,7 @@ if inputMode.upper() == 'C':
     while email == 0:
         if oneline[i].find("@") > 0:
             email = i
-        i +=1
+        i += 1
 
     phoneNumber = 0
     x = 0
@@ -31,30 +44,30 @@ if inputMode.upper() == 'C':
         m = pattern.match(testline)
         if m:
             phoneNumber = x
-        x +=1
+        x += 1
 
     firstName = oneline[29]
 
     if phoneNumber - email == 4:
         UIN == oneline[email+1]
     else:
-        UIN = None
+        UIN = ""
  
     ADValues = {
-        "First Name": oneline[29],
-        "Last Name": oneline[30],
-        "Username": firstName[0] + oneline[30],
-        "Title": oneline[phoneNumber+1],
-        "Description": oneline[phoneNumber+1] + ', ' + initials.upper() + ' ' +str(today),
-        "Email": oneline[email],
-        "Phone": oneline[phoneNumber],
-        "UIN": UIN,
-        "Department": oneline[phoneNumber+2]
+        "givenName": oneline[29],
+        "sn": oneline[30],
+        "sAMAccountName": firstName[0] + oneline[30],
+        "title": oneline[phoneNumber+1],
+        "description": oneline[phoneNumber+1] + ', ' + initials.upper() + ' ' + str(today),
+        "mail": oneline[email],
+        "telephoneNumber": oneline[phoneNumber],
+        "employeeID": UIN,
+        "department": oneline[phoneNumber+2]
     }
 elif inputMode.upper() == 'E':
     i = 21
     while i < 33:
-        i+=1
+        i += 1
 
     email = 0
     i = 0
@@ -84,16 +97,38 @@ elif inputMode.upper() == 'E':
     else:
         department = oneline[email - 2]
     ADValues = {
-        "First Name": oneline[21],
-        "Last Name": oneline[22],
-        "Username": firstName[0] + oneline[22],
-        "Title": oneline[phoneNumber + 5],
-        "Description": oneline[phoneNumber + 5] + ', ' + initials.upper() + ' ' + str(today),
-        "Email": oneline[email],
-        "Phone": oneline[phoneNumber],
-        "UIN": oneline[phoneNumber + 2],
-        "Department": department
+        "givenName": oneline[21],
+        "sn": oneline[22],
+        "sAMAccountName": firstName[0] + oneline[22],
+        "title": oneline[phoneNumber + 5],
+        "description": oneline[phoneNumber + 5] + ', ' + initials.upper() + ' ' + str(today),
+        "mail": oneline[email],
+        "telephoneNumber": oneline[phoneNumber],
+        "employeeID": oneline[phoneNumber + 2],
+        "department": department
     }
 
 for location in ADValues:
     print(ADValues[location])
+
+correct = input('Are the values correct (Y or N)? ')
+if correct.upper() != 'Y':
+    sys.exit()
+
+pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
+user = aduser.ADUser.from_cn(loginUsername2)
+# user = aduser.ADUser.from_cn(input('Enter you account CN for AD: '))
+
+print(user)
+
+ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
+new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None, enable=True, optional_attributes={'employeeID':ADValues['employeeID'],'givenName':ADValues['givenName'],'sn':ADValues['sn'],'title':ADValues['title'],'description':ADValues['description'],'mail':ADValues['mail'],'telephoneNumber':ADValues['telephoneNumber'],'department':ADValues['department']})
+'''new_user.set_attribute("givenName", ADValues['First Name'])
+new_user.set_attribute("last name", ADValues['Last Name'])
+new_user.set_attribute("title", ADValues['Title'])
+new_user.set_attribute("description", ADValues['Description'])
+new_user.set_attribute("email", ADValues['Email'])
+new_user.set_attribute("phone", ADValues['Phone'])'''
+if ADValues['employeeID'] != "":
+    new_user.set_attribute("employeeNumber", ADValues['employeeID'])
+'''new_user.set_attribute("department", ADValues['Department'])'''
