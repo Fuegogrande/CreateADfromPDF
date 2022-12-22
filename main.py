@@ -4,7 +4,6 @@ from datetime import date
 from pyad import *
 import sys
 
-
 # Extract PDF Data and save to Variables
 loginName = input('What is your name, first and last? \n')
 splitName = loginName.split()
@@ -17,11 +16,13 @@ loginUsername2 = loginName + ' - la'
 print(loginUsername2)
 loginPassword = input('Password: ')
 
-
 today = date.today()
 inputMode = input('Employee or Contractor (E or C)? ')
 fileName = input('What is the filename? \n')
-doc = fitz.open(fileName + '.pdf')
+try:
+    doc = fitz.open('C:\\Users\\csimank\\Downloads' + fileName + '.pdf')
+except:
+    doc = fitz.open('C:\\Users\\rmccallum\\Downloads' + fileName + '.pdf')
 text = ""
 line = 1
 for page in doc:
@@ -49,7 +50,7 @@ if inputMode.upper() == 'C':
     firstName = oneline[29]
 
     if phoneNumber - email == 4:
-        UIN == oneline[email+1]
+        UIN == oneline[email + 1]
     else:
         UIN = ""
  
@@ -117,18 +118,11 @@ if correct.upper() != 'Y':
 
 pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
 user = aduser.ADUser.from_cn(loginUsername2)
-# user = aduser.ADUser.from_cn(input('Enter you account CN for AD: '))
-
 print(user)
 
 ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
 new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None, enable=True, optional_attributes={'employeeID':ADValues['employeeID'],'givenName':ADValues['givenName'],'sn':ADValues['sn'],'title':ADValues['title'],'description':ADValues['description'],'mail':ADValues['mail'],'telephoneNumber':ADValues['telephoneNumber'],'department':ADValues['department']})
-'''new_user.set_attribute("givenName", ADValues['First Name'])
-new_user.set_attribute("last name", ADValues['Last Name'])
-new_user.set_attribute("title", ADValues['Title'])
-new_user.set_attribute("description", ADValues['Description'])
-new_user.set_attribute("email", ADValues['Email'])
-new_user.set_attribute("phone", ADValues['Phone'])'''
+
 if ADValues['employeeID'] != "":
     new_user.set_attribute("employeeNumber", ADValues['employeeID'])
-'''new_user.set_attribute("department", ADValues['Department'])'''
+
