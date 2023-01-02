@@ -23,14 +23,17 @@ def adusers():
 
 # Extract PDF Data and save to Variables
 
+with open('creds.txt') as credentials:
+    lines = credentials.readlines()
+print(lines)
 
-
-loginName = input('What is your name, first and last? \n')
+loginName = lines[0]
+loginName = loginName[:-1]
 splitName = loginName.split()
 loginFirst = splitName[0]
 loginLast = splitName[1]
 initials = loginFirst[0] + loginLast[0]
-loginUsername = input('What is your login name (do not include -la)? ')
+loginUsername = lines[1]
 defaultUsername = loginUsername + '-la'
 loginUsername2 = loginName + ' - la'
 print(loginUsername2)
