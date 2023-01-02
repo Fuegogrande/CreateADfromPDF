@@ -168,9 +168,9 @@ for files in fileList:
         print(ADValues[location])
     print(ADValues)
     correct = input('Are the values correct (Y or N)? ')
-    if correct.upper() != 'Y':
-        sys.exit()
+    if correct.upper() == 'Y':
+        adusers()
 
-    adusers()
+
 
     numX+=1
