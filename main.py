@@ -3,8 +3,28 @@ import re
 from datetime import date
 from pyad import *
 import sys
+import os
+
+
+def adusers():
+    pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
+    user = aduser.ADUser.from_cn(loginUsername2)
+    print(user)
+
+    ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
+    print(ou)
+    new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None, enable=True, optional_attributes={'employeeID':ADValues['employeeID'],
+    'givenName':ADValues['givenName'],'sn':ADValues['sn'],'title':ADValues['title'],'description':ADValues['description'],'mail':ADValues['mail'],'telephoneNumber':ADValues['telephoneNumber'],
+    'department':ADValues['department']})
+
+    '''if ADValues['employeeID'] != "":
+        new_user.set_attribute("employeeNumber", ADValues['employeeID'])
+'''
 
 # Extract PDF Data and save to Variables
+
+
+
 loginName = input('What is your name, first and last? \n')
 splitName = loginName.split()
 loginFirst = splitName[0]
@@ -17,16 +37,40 @@ print(loginUsername2)
 loginPassword = input('Password: ')
 
 today = date.today()
-inputMode = input('Employee or Contractor (E or C)? ')
-fileName = input('What is the filename? \n')
+
+numC = 0
+numE = 0
 numX = 0
-while numX < input('How many accounts need to be added?'):
-    try:
-        doc = fitz.open('C:\\Users\\csimank\\Downloads' + fileName + '.pdf')
-    except:
-        doc = fitz.open('C:\\Users\\rmccallum\\Downloads' + fileName + '.pdf')
+fileList = []
+filePath = 'C:\\Users\\' + loginUsername + '\\Downloads\\Accounts'
+os.chdir(filePath)
+print("Current working directory: {0}".format(os.getcwd()))
+
+for f_name in os.listdir('C:\\Users\\' + loginUsername + '\\Downloads\\Accounts'):
+    if f_name.startswith('Computer Access Request'):
+            numC+=1
+    elif f_name.startswith('UES - Pre'):
+        numE+=1
+    fileList.append(f_name)
+
+numIterations = numC + numE
+x = 0
+
+for files in fileList:
+    print(files)
+    documents = os.path.join('C:\\Users\\' + loginUsername + '\\Downloads\\Accounts', files)
+    print(documents)
+
+    if files.startswith('Computer'):
+        inputMode = 'C'
+    else:
+        inputMode = 'E'
+    x+=1
+
     text = ""
     line = 1
+
+    doc = fitz.open(files)
     for page in doc:
         text += page.get_text()
     oneline = text.split('\n')
@@ -34,6 +78,7 @@ while numX < input('How many accounts need to be added?'):
     if inputMode.upper() == 'C':
         email = 0
         i = 27
+        print('Contractor')
         while email == 0:
             if oneline[i].find("@") > 0:
                 email = i
@@ -69,6 +114,7 @@ while numX < input('How many accounts need to be added?'):
         }
     elif inputMode.upper() == 'E':
         i = 21
+        print('Employee')
         while i < 33:
             i += 1
 
@@ -88,10 +134,11 @@ while numX < input('How many accounts need to be added?'):
             if m:
                 phoneNumber = x
             x += 1
-        firstName = oneline[21]
-        if email == 24:
-            department = oneline[23]
-        elif email == 25:
+        firstName = oneline[20]
+        print(email)
+        if email == 23:
+            department = oneline[22]
+        elif email == 24:
             suffix = input('Is there a suffix (Y or N)? ')
             if suffix.upper() == 'Y':
                 department = oneline[email - 2]
@@ -100,9 +147,9 @@ while numX < input('How many accounts need to be added?'):
         else:
             department = oneline[email - 2]
         ADValues = {
-            "givenName": oneline[21],
-            "sn": oneline[22],
-            "sAMAccountName": firstName[0] + oneline[22],
+            "givenName": oneline[20],
+            "sn": oneline[21],
+            "sAMAccountName": firstName[0] + oneline[21],
             "title": oneline[phoneNumber + 5],
             "description": oneline[phoneNumber + 5] + ', ' + initials.upper() + ' ' + str(today),
             "mail": oneline[email],
@@ -113,19 +160,11 @@ while numX < input('How many accounts need to be added?'):
 
     for location in ADValues:
         print(ADValues[location])
-
+    print(ADValues)
     correct = input('Are the values correct (Y or N)? ')
     if correct.upper() != 'Y':
         sys.exit()
 
-    pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
-    user = aduser.ADUser.from_cn(loginUsername2)
-    print(user)
-
-    ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
-    new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None, enable=True, optional_attributes={'employeeID':ADValues['employeeID'],'givenName':ADValues['givenName'],'sn':ADValues['sn'],'title':ADValues['title'],'description':ADValues['description'],'mail':ADValues['mail'],'telephoneNumber':ADValues['telephoneNumber'],'department':ADValues['department']})
-
-    if ADValues['employeeID'] != "":
-        new_user.set_attribute("employeeNumber", ADValues['employeeID'])
+    adusers()
 
     numX+=1
