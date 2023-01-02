@@ -35,7 +35,7 @@ loginLast = splitName[1]
 initials = loginFirst[0] + loginLast[0]
 loginUsername = lines[1]
 defaultUsername = loginUsername + '-la'
-loginUsername2 = loginName + ' - la'
+loginUsername2 = loginName
 print(loginUsername2)
 loginPassword = input('Password: ')
 
