@@ -137,11 +137,11 @@ for files in fileList:
             if m:
                 phoneNumber = x
             x += 1
-        firstName = oneline[20]
+        firstName = oneline[21]
         print(email)
-        if email == 23:
-            department = oneline[22]
-        elif email == 24:
+        if email == 24:
+            department = oneline[23]
+        elif email == 25:
             suffix = input('Is there a suffix (Y or N)? ')
             if suffix.upper() == 'Y':
                 department = oneline[email - 2]
@@ -150,11 +150,11 @@ for files in fileList:
         else:
             department = oneline[email - 2]
         ADValues = {
-            "givenName": oneline[20],
-            "sn": oneline[21],
-            "sAMAccountName": firstName[0] + oneline[21],
-            "title": oneline[phoneNumber + 5],
-            "description": oneline[phoneNumber + 5] + ', ' + initials.upper() + ' ' + str(today),
+            "givenName": oneline[21],
+            "sn": oneline[22],
+            "sAMAccountName": firstName[0] + oneline[22],
+            "title": oneline[phoneNumber + 4],
+            "description": oneline[phoneNumber + 4] + ', ' + initials.upper() + ' ' + str(today),
             "mail": oneline[email],
             "telephoneNumber": oneline[phoneNumber],
             "employeeID": oneline[phoneNumber + 2],
