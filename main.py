@@ -2,7 +2,6 @@ import fitz
 import re
 from datetime import date
 from pyad import *
-import sys
 import os
 
 
@@ -17,12 +16,12 @@ def adusers():
 
     if ADValues['employeeID'] != "":
         new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
-        optional_attributes={'employeeID': ADValues['employeeID'],'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
-        'description': ADValues['description'], 'mail': ADValues['mail'],'telephoneNumber': ADValues['telephoneNumber'],'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']})
+        optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
+        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']})
     else:
         new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None,enable=True, optional_attributes={'employeeID': ADValues['employeeID'],
-        'givenName': ADValues['givenName'],'sn': ADValues['sn'],'title': ADValues['title'],'description': ADValues['description'],
-        'mail': ADValues['mail'],'telephoneNumber': ADValues['telephoneNumber'],'department': ADValues['department']})
+        'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'], 'description': ADValues['description'],
+        'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']})
 
 # Extract PDF Data and save to Variables
 
@@ -71,7 +70,7 @@ for files in fileList:
         inputMode = 'C'
     else:
         inputMode = 'E'
-    x+=1
+    x += 1
 
     text = ""
     line = 1
@@ -170,7 +169,7 @@ for files in fileList:
     correct = input('Are the values correct (Y or N)? ')
     if correct.upper() == 'Y':
         adusers()
+        doc.close()
+        os.remove(files)
 
-
-
-    numX+=1
+    numX += 1
