@@ -17,11 +17,12 @@ def adusers():
     if ADValues['employeeID'] != "":
         new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
         optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
-        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']})
+        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']}).force_pwd_change_on_login()
     else:
-        new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!", upn_suffix=None,enable=True, optional_attributes={'employeeID': ADValues['employeeID'],
-        'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'], 'description': ADValues['description'],
-        'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']})
+        new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
+        optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
+        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']}).force_pwd_change_on_login()
+
 
 # Extract PDF Data and save to Variables
 
