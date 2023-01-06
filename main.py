@@ -5,14 +5,16 @@ from pyad import *
 import os
 
 
-def adusers():
+
+def adlogin():
     pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
-    user = aduser.ADUser.from_cn(loginUsername2)
+    global user = aduser.ADUser.from_cn(loginUsername2)
     print(user)
 
-    ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
+    global ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
     print(ou)
 
+def adusers():
 
     if ADValues['employeeID'] != "":
         new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
@@ -23,6 +25,19 @@ def adusers():
         optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
         'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']}).force_pwd_change_on_login()
 
+def checkusers():
+    q = pyad.adquery.ADQuery()
+
+
+    q.execute_query(
+        attributes = ["departmentNumber"],
+        where_clause = f"SamAccountName = '{ADValues['sAMAccountName']}'",
+        base_dn="DC=apogee,DC=tamu,DC=edu"
+    )
+
+    for row in q.get_results():
+        dept = row["departmentNumber"]
+        print (dept)
 
 # Extract PDF Data and save to Variables
 
@@ -169,6 +184,8 @@ for files in fileList:
     print(ADValues)
     correct = input('Are the values correct (Y or N)? ')
     if correct.upper() == 'Y':
+        adlogin()
+        checkusers()
         adusers()
         doc.close()
         os.remove(files)
