@@ -5,7 +5,7 @@ from pyad import *
 import os
 
 def adusers():
-
+    #login to AD
     pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
     user = aduser.ADUser.from_cn(loginUsername2)
     print(user)
@@ -188,34 +188,3 @@ for files in fileList:
         os.remove(files)
 
     numX += 1
-
-
-
-'''
-from pyad import *
-
-#...
-
-def check_user(username):
-    try:
-        # Search for the user in the Active Directory
-        user = aduser.ADUser.from_cn(username)
-        return True
-    except aduser.ADUserNotFound:
-        return False
-
-#...
-
-# Check if the user already exists in the Active Directory before attempting to add them
-if check_user(ADValues['sAMAccountName']):
-    print("User already exists in Active Directory.")
-else:
-    new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
-    optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
-    'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']}).force_pwd_change_on_login()
-
-users = pyad.find_user(username)
-if users:
-    print("User already exists in Active Directory.")
-
-'''
