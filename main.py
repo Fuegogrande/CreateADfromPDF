@@ -4,40 +4,37 @@ from datetime import date
 from pyad import *
 import os
 
-
-
-def adlogin():
-    pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
-    global user = aduser.ADUser.from_cn(loginUsername2)
-    print(user)
-
-    global ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
-    print(ou)
-
 def adusers():
 
-    if ADValues['employeeID'] != "":
-        new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
-        optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
-        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']}).force_pwd_change_on_login()
+    pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
+    user = aduser.ADUser.from_cn(loginUsername2)
+    print(user)
+
+    ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
+    print(ou)
+
+    if check_user(ADValues['sAMAccountName']):
+        print("User already exists in Active Directory.")
     else:
-        new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
-        optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
-        'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']}).force_pwd_change_on_login()
+        if ADValues['employeeID'] != "":
+            new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
+            optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
+            'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']}).force_pwd_change_on_login()
+        else:
+            new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
+            optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
+            'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']}).force_pwd_change_on_login()
 
-def checkusers():
-    q = pyad.adquery.ADQuery()
+def check_user(username):
+    try:
+        # Search for the user in the Active Directory
+
+        user = aduser.ADUser.from_cn(username)
+        return True
+    except:
+        return False
 
 
-    q.execute_query(
-        attributes = ["departmentNumber"],
-        where_clause = f"SamAccountName = '{ADValues['sAMAccountName']}'",
-        base_dn="DC=apogee,DC=tamu,DC=edu"
-    )
-
-    for row in q.get_results():
-        dept = row["departmentNumber"]
-        print (dept)
 
 # Extract PDF Data and save to Variables
 
@@ -184,10 +181,41 @@ for files in fileList:
     print(ADValues)
     correct = input('Are the values correct (Y or N)? ')
     if correct.upper() == 'Y':
-        adlogin()
-        checkusers()
+
+
         adusers()
         doc.close()
         os.remove(files)
 
     numX += 1
+
+
+
+'''
+from pyad import *
+
+#...
+
+def check_user(username):
+    try:
+        # Search for the user in the Active Directory
+        user = aduser.ADUser.from_cn(username)
+        return True
+    except aduser.ADUserNotFound:
+        return False
+
+#...
+
+# Check if the user already exists in the Active Directory before attempting to add them
+if check_user(ADValues['sAMAccountName']):
+    print("User already exists in Active Directory.")
+else:
+    new_user = pyad.aduser.ADUser.create(ADValues['sAMAccountName'], ou, password="Temp1234!Temp1234!",upn_suffix=None, enable=True,
+    optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'], 'sn': ADValues['sn'], 'title': ADValues['title'],
+    'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department'], 'employeeNumber': ADValues['employeeID']}).force_pwd_change_on_login()
+
+users = pyad.find_user(username)
+if users:
+    print("User already exists in Active Directory.")
+
+'''
