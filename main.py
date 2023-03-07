@@ -4,8 +4,9 @@ from datetime import date
 from pyad import *
 import os
 
+
 def adusers():
-    #login to AD
+    # login to AD
     pyad.set_defaults(ldap_server="AP-DC2.apogee.tamu.edu", username=defaultUsername, password=loginPassword)
     user = aduser.ADUser.from_cn(loginUsername2)
     print(user)
@@ -25,6 +26,7 @@ def adusers():
             optional_attributes={'employeeID': ADValues['employeeID'], 'givenName': ADValues['givenName'],'sn': ADValues['sn'], 'title': ADValues['title'],
             'description': ADValues['description'], 'mail': ADValues['mail'], 'telephoneNumber': ADValues['telephoneNumber'], 'department': ADValues['department']}).force_pwd_change_on_login()
 
+
 def check_user(username):
     try:
         # Search for the user in the Active Directory
@@ -34,9 +36,8 @@ def check_user(username):
     except:
         return False
 
-
-
 # Extract PDF Data and save to Variables
+
 
 with open('creds.txt') as credentials:
     lines = credentials.readlines()
@@ -115,7 +116,7 @@ for files in fileList:
         firstName = oneline[29]
 
         if phoneNumber - email == 4:
-            UIN == oneline[email + 1]
+            UIN = oneline[email + 1]
         else:
             UIN = ""
 
@@ -181,10 +182,7 @@ for files in fileList:
     print(ADValues)
     correct = input('Are the values correct (Y or N)? ')
     if correct.upper() == 'Y':
-
-
         adusers()
         doc.close()
         os.remove(files)
-
     numX += 1
