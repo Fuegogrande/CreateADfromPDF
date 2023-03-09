@@ -14,7 +14,7 @@ def adusers():
     ou = pyad.adcontainer.ADContainer.from_dn("OU=IT Service Desk,OU=IT Services,DC=apogee,DC=tamu,DC=edu")
     print(ou)
 
-    if check_user(ADValues['sAMAccountName']):
+    if check_user(ADValues['sAMAccountName']) == False:
         print("User already exists in Active Directory.")
     else:
         if ADValues['employeeID'] != "":
